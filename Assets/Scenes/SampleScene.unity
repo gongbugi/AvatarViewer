@@ -1883,7 +1883,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jsonFileName: body_measurements.json
   useLocalFile: 0
-  serverUrl: https://15.165.129.131:3000/api/mannequin/showMannequin
+  serverUrl: http://15.165.129.131:3000/api/mannequin/showMannequin
   avatar: {fileID: 4241563696201313922}
 --- !u!1 &541833200
 GameObject:
