@@ -9,11 +9,13 @@ using UMA.CharacterSystem;
 public class AvatarBodyData
 {
     [Header("신체 치수 (0-1 범위)")]
-    public float height = 0.5f;           // 키
-    public float shoulder_width = 0.5f;   // 어깨 너비
-    public float chest = 0.5f;            // 가슴
-    public float waist = 0.5f;            // 허리
-    public float hip = 0.5f;              // 엉덩이
+    public float uma_height = 0.5f;       // 키
+    public float uma_width = 0.5f;        // 어깨 너비 (원래 shoulder_width)
+    public float uma_waist = 0.5f;        // 허리
+    public float uma_belly = 0.5f;        // 배
+    public float uma_fore_arm = 0.5f;     // 팔뚝 길이
+    public float uma_arm = 0.5f;          // 팔 길이
+    public float uma_legs = 0.5f;         // 다리 길이
 }
 
 public class AvatarBodyApplier : MonoBehaviour
@@ -110,7 +112,7 @@ public class AvatarBodyApplier : MonoBehaviour
         {
             currentBodyData = JsonUtility.FromJson<AvatarBodyData>(jsonContent);
             Debug.Log("신체 데이터 로드 완료");
-            Debug.Log($"Height: {currentBodyData.height}, Chest: {currentBodyData.chest}, Waist: {currentBodyData.waist}");
+            Debug.Log($"Height: {currentBodyData.uma_height}, Width: {currentBodyData.uma_width}, Waist: {currentBodyData.uma_waist}");
             
             OnBodyDataLoaded?.Invoke(currentBodyData);
             ApplyBodyDataToAvatar();
@@ -143,17 +145,19 @@ public class AvatarBodyApplier : MonoBehaviour
         try
         {
             // UMA DNA 값 적용 (0-1 범위)
-            avatar.SetDNA("height", currentBodyData.height);           // 키
-            avatar.SetDNA("armWidth", currentBodyData.shoulder_width); // 어깨 너비
-            avatar.SetDNA("breastSize", currentBodyData.chest);        // 가슴
-            avatar.SetDNA("waist", currentBodyData.waist);             // 허리
-            avatar.SetDNA("gluteusSize", currentBodyData.hip);         // 엉덩이
+            avatar.SetDNA("height", currentBodyData.uma_height);       // 키
+            avatar.SetDNA("armWidth", currentBodyData.uma_width);      // 어깨 너비 (원래 shoulder_width)
+            avatar.SetDNA("waist", currentBodyData.uma_waist);         // 허리
+            avatar.SetDNA("belly", currentBodyData.uma_belly);         // 배
+            avatar.SetDNA("forearmLength", currentBodyData.uma_fore_arm); // 팔뚝 길이
+            avatar.SetDNA("armLength", currentBodyData.uma_arm);       // 팔 길이
+            avatar.SetDNA("legsSize", currentBodyData.uma_legs);  // 다리 길이
 
             // 아바타 리빌드
             avatar.BuildCharacter();
             
             Debug.Log("UMA 아바타에 신체 데이터 적용 완료!");
-            Debug.Log($"적용된 값 - Height: {currentBodyData.height:F3}, Shoulder: {currentBodyData.shoulder_width:F3}, Chest: {currentBodyData.chest:F3}, Waist: {currentBodyData.waist:F3}, Hip: {currentBodyData.hip:F3}");
+            Debug.Log($"적용된 값 - Height: {currentBodyData.uma_height:F3}, Width: {currentBodyData.uma_width:F3}, Waist: {currentBodyData.uma_waist:F3}, Belly: {currentBodyData.uma_belly:F3}, ForeArm: {currentBodyData.uma_fore_arm:F3}, Arm: {currentBodyData.uma_arm:F3}, Legs: {currentBodyData.uma_legs:F3}");
         }
         catch (Exception e)
         {
@@ -178,36 +182,50 @@ public class AvatarBodyApplier : MonoBehaviour
     public void SetHeight(float value)
     {
         if (currentBodyData == null) currentBodyData = new AvatarBodyData();
-        currentBodyData.height = Mathf.Clamp01(value);
-        ApplyIndividualDNA("height", currentBodyData.height);
+        currentBodyData.uma_height = Mathf.Clamp01(value);
+        ApplyIndividualDNA("height", currentBodyData.uma_height);
     }
 
-    public void SetShoulderWidth(float value)
+    public void SetWidth(float value)
     {
         if (currentBodyData == null) currentBodyData = new AvatarBodyData();
-        currentBodyData.shoulder_width = Mathf.Clamp01(value);
-        ApplyIndividualDNA("armWidth", currentBodyData.shoulder_width);
-    }
-
-    public void SetChest(float value)
-    {
-        if (currentBodyData == null) currentBodyData = new AvatarBodyData();
-        currentBodyData.chest = Mathf.Clamp01(value);
-        ApplyIndividualDNA("breastSize", currentBodyData.chest);
+        currentBodyData.uma_width = Mathf.Clamp01(value);
+        ApplyIndividualDNA("armWidth", currentBodyData.uma_width);
     }
 
     public void SetWaist(float value)
     {
         if (currentBodyData == null) currentBodyData = new AvatarBodyData();
-        currentBodyData.waist = Mathf.Clamp01(value);
-        ApplyIndividualDNA("waist", currentBodyData.waist);
+        currentBodyData.uma_waist = Mathf.Clamp01(value);
+        ApplyIndividualDNA("waist", currentBodyData.uma_waist);
     }
 
-    public void SetHip(float value)
+    public void SetBelly(float value)
     {
         if (currentBodyData == null) currentBodyData = new AvatarBodyData();
-        currentBodyData.hip = Mathf.Clamp01(value);
-        ApplyIndividualDNA("gluteusSize", currentBodyData.hip);
+        currentBodyData.uma_belly = Mathf.Clamp01(value);
+        ApplyIndividualDNA("belly", currentBodyData.uma_belly);
+    }
+
+    public void SetForeArm(float value)
+    {
+        if (currentBodyData == null) currentBodyData = new AvatarBodyData();
+        currentBodyData.uma_fore_arm = Mathf.Clamp01(value);
+        ApplyIndividualDNA("forearmLength", currentBodyData.uma_fore_arm);
+    }
+
+    public void SetArm(float value)
+    {
+        if (currentBodyData == null) currentBodyData = new AvatarBodyData();
+        currentBodyData.uma_arm = Mathf.Clamp01(value);
+        ApplyIndividualDNA("armLength", currentBodyData.uma_arm);
+    }
+
+    public void SetLegs(float value)
+    {
+        if (currentBodyData == null) currentBodyData = new AvatarBodyData();
+        currentBodyData.uma_legs = Mathf.Clamp01(value);
+        ApplyIndividualDNA("legsSize", currentBodyData.uma_legs);
     }
 
     /// <summary>
@@ -240,9 +258,11 @@ public class AvatarBodyApplier : MonoBehaviour
         {
             avatar.SetDNA("height", 0.5f);
             avatar.SetDNA("armWidth", 0.5f);
-            avatar.SetDNA("breastSize", 0.5f);
             avatar.SetDNA("waist", 0.5f);
-            avatar.SetDNA("gluteusSize", 0.5f);
+            avatar.SetDNA("belly", 0.5f);
+            avatar.SetDNA("forearmLength", 0.5f);
+            avatar.SetDNA("armLength", 0.5f);
+            avatar.SetDNA("legsSize", 0.5f);
 
             avatar.BuildCharacter();
             
