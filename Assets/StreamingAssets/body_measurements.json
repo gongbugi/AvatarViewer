@@ -1,7 +1,9 @@
 {
-  "height": 0.3,
-  "shoulder_width": 0.6,
-  "chest": 0.8,
-  "waist": 0.4,
-  "hip": 0.75
+  "uma_height": 0.34299682229283784,
+  "uma_belly": 1.0,
+  "uma_waist": 0.6889962416243091,
+  "uma_width": 0.6241443638446093,
+  "uma_fore_arm": 0.5,
+  "uma_arm": 0.5,
+  "uma_legs": 0.5
 }

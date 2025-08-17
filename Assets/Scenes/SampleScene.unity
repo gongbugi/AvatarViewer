@@ -1867,19 +1867,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc6e65b946bc895458a0d51b2cc95192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jsonFileName: body_measurements.json
-  useLocalFile: 1
-  serverUrl: https://yourserver.com/api/measurements
-  autoLoadOnStart: 1
-  autoApplyToAvatar: 1
-  forceServerModeOnWebGL: 1
-  targetAvatar: {fileID: 0}
-  currentMeasurements:
-    height: 0
-    shoulder_width: 0
-    chest: 0
-    waist: 0
-    hip: 0
 --- !u!4 &516255407
 Transform:
   m_ObjectHideFlags: 0
@@ -1907,9 +1894,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6743b85acca824a4095628481aa93756, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jsonFileName: body_measurements.json
-  useLocalFile: 1
-  serverUrl: https://yourserver.com/api/measurements
+  jsonFileName: 
+  useLocalFile: 0
+  serverUrl: http://15.165.129.131:3000/api/mannequin/showMannequin
   avatar: {fileID: 4241563696201313922}
 --- !u!1 &541833200
 GameObject:
