@@ -1846,7 +1846,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 516255407}
-  - component: {fileID: 516255406}
   - component: {fileID: 516255408}
   m_Layer: 0
   m_Name: AvatarManager
@@ -1894,7 +1893,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6743b85acca824a4095628481aa93756, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
   jsonFileName: 
+=======
+  jsonFileName: body_measurements.json
+>>>>>>> 12c9a27bbe4c185d36aa9bd8de3fb82d1db76643
   useLocalFile: 0
   serverUrl: http://15.165.129.131:3000/api/mannequin/showMannequin
   avatar: {fileID: 4241563696201313922}
