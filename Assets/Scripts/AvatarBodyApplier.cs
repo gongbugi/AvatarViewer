@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UMA.CharacterSystem;
+using System.Runtime.InteropServices;
 
 [Serializable]
 public class AvatarBodyData
@@ -22,16 +23,28 @@ public class AvatarBodyApplier : MonoBehaviour
 {
     [Header("설정")]
     public string jsonFileName = "body_measurements.json";
-    public bool useLocalFile = true;
-    public string serverUrl = "https://yourserver.com/api/measurements";
+    public bool useLocalFile = false;
+    public string serverUrl = "http://15.165.129.131:3000/api/mannequin/showMannequin";
     
     [Header("UMA 아바타 참조")]
     public DynamicCharacterAvatar avatar;
     
     private AvatarBodyData currentBodyData;
+    private string authToken = "";
     
     public event Action<AvatarBodyData> OnBodyDataLoaded;
     public event Action<string> OnErrorOccurred;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern string GetTokenFromLocalStorage();
+    
+    [DllImport("__Internal")]
+    private static extern void SetTokenToLocalStorage(string token);
+    
+    [DllImport("__Internal")]
+    private static extern void RemoveTokenFromLocalStorage();
+#endif
 
     void Start()
     {
@@ -46,7 +59,56 @@ public class AvatarBodyApplier : MonoBehaviour
             }
         }
         
+        // LocalStorage에서 토큰 추출
+        ExtractTokenFromLocalStorage();
+        
         LoadBodyData();
+    }
+
+    /// <summary>
+    /// LocalStorage에서 토큰 추출
+    /// </summary>
+    private void ExtractTokenFromLocalStorage()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        try
+        {
+            string token = GetTokenFromLocalStorage();
+            
+            if (!string.IsNullOrEmpty(token))
+            {
+                authToken = token;
+                Debug.Log("LocalStorage에서 토큰 추출 성공");
+                
+                // 토큰을 PlayerPrefs에도 저장 (백업용)
+                PlayerPrefs.SetString("AuthToken", authToken);
+                PlayerPrefs.Save();
+            }
+            else
+            {
+                // LocalStorage에 토큰이 없으면 PlayerPrefs에서 시도
+                authToken = PlayerPrefs.GetString("AuthToken", "");
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    Debug.Log("PlayerPrefs에서 저장된 토큰 사용");
+                }
+                else
+                {
+                    Debug.LogWarning("토큰을 찾을 수 없습니다. 로그인 페이지에서 토큰이 LocalStorage에 저장되었는지 확인해주세요.");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("LocalStorage에서 토큰 추출 중 오류: " + e.Message);
+            // 오류 시 저장된 토큰 시도
+            authToken = PlayerPrefs.GetString("AuthToken", "");
+        }
+#else
+        // 에디터나 다른 플랫폼에서는 저장된 토큰 사용
+        authToken = PlayerPrefs.GetString("AuthToken", "");
+        Debug.Log("에디터 모드: 저장된 토큰 사용");
+#endif
     }
 
     /// <summary>
@@ -89,17 +151,38 @@ public class AvatarBodyApplier : MonoBehaviour
     private IEnumerator LoadBodyDataFromServer()
     {
         UnityWebRequest request = UnityWebRequest.Get(serverUrl);
+        
+        // 토큰이 있으면 Authorization 헤더에 추가
+        if (!string.IsNullOrEmpty(authToken))
+        {
+            request.SetRequestHeader("Authorization", "Bearer " + authToken);
+            Debug.Log("Authorization 헤더 추가됨");
+        }
+        else
+        {
+            Debug.LogWarning("토큰이 없습니다. 401 오류가 발생할 수 있습니다.");
+        }
+        
         yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
         {
             string jsonContent = request.downloadHandler.text;
+            Debug.Log("서버에서 데이터 로드 성공");
             ProcessBodyData(jsonContent);
         }
         else
         {
             string error = $"서버에서 신체 데이터 로드 실패: {request.error}";
+            
+            // 401 오류인 경우 특별 처리
+            if (request.responseCode == 401)
+            {
+                error += "\n토큰이 유효하지 않거나 만료되었습니다. URL에 ?token=your_token_here를 추가해주세요.";
+            }
+            
             Debug.LogError(error);
+            Debug.LogError($"응답 코드: {request.responseCode}");
             OnErrorOccurred?.Invoke(error);
         }
 
@@ -308,5 +391,30 @@ public class AvatarBodyApplier : MonoBehaviour
             Debug.LogError(error);
             OnErrorOccurred?.Invoke(error);
         }
+    }
+
+    /// <summary>
+    /// 외부에서 토큰 설정 (테스트용)
+    /// </summary>
+    public void SetAuthToken(string token)
+    {
+        authToken = token;
+        PlayerPrefs.SetString("AuthToken", authToken);
+        PlayerPrefs.Save();
+        
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // LocalStorage에도 저장
+        SetTokenToLocalStorage(token);
+#endif
+        
+        Debug.Log("토큰이 수동으로 설정되었습니다.");
+    }
+
+    /// <summary>
+    /// 현재 토큰 상태 확인
+    /// </summary>
+    public string GetCurrentToken()
+    {
+        return authToken;
     }
 }
